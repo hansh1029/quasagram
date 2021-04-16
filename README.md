@@ -1,6 +1,6 @@
 # Quasagram (quasagram)
-
 A Quasar Framework app
+clone instagram with vue, quasar, firebase
 
 ## Install the dependencies
 ```bash
