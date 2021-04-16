@@ -1,2 +1,2 @@
-# vue-instagram
-clone instagram with vue
+# quasagram
+clone instagram with vue, quasar, firebase
