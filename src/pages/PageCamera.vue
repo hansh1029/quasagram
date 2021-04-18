@@ -11,12 +11,25 @@
     </div>
     <div class="text-center q-pa-md">
       <q-btn
+        v-if="hasCameraSupport"
         @click="captureImage"
         round
         color="grey-10"
         size="lg"
         icon="eva-camera"
       />
+      <q-file
+        v-else
+        v-model="imageUpload"
+        @input="captureImageFallback"
+        label="Choose an image"
+        accept="image/*"
+        outlined
+      >
+        <template v-slot:prepend>
+          <q-icon name="eva-attach-outline" />
+        </template>
+      </q-file>
       <div class="row justify-center q-ma-md">
         <q-input
           v-model="post.caption"
@@ -61,6 +74,8 @@ export default {
         date: Date.now(),
       },
       imageCaptured: false,
+      imageUpload: [],
+      hasCameraSupport: true,
     };
   },
   methods: {
@@ -73,6 +88,7 @@ export default {
           this.$refs.video.srcObject = stream;
         })
         .catch((err) => {
+          this.hasCameraSupport = false;
           alert("cannot use camera");
         });
     },
@@ -85,6 +101,31 @@ export default {
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
       this.imageCaptured = true;
       this.post.photo = this.dataURItoBlob(canvas.toDataURL());
+      this.disableCamera();
+    },
+    captureImageFallback(file) {
+      this.post.photo = file;
+
+      let canvas = this.$refs.canvas;
+      let context = canvas.getContext("2d");
+
+      var reader = new FileReader();
+      reader.onload = (event) => {
+        var img = new Image();
+        img.onload = () => {
+          canvas.width = img.width;
+          canvas.height = img.height;
+          context.drawImage(img, 0, 0);
+          this.imageCaptured = true;
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    },
+    disableCamera() {
+      this.$refs.video.srcObject.getVideoTracks().forEach((track) => {
+        track.stop();
+      });
     },
     dataURItoBlob(dataURI) {
       // convert base64 to raw binary data held in a string
@@ -113,6 +154,11 @@ export default {
   mounted() {
     this.initCamera();
   },
+  beforeDestroy() {
+    if (this.hasCameraSupport) {
+      this.disableCamera();
+    }
+  }
 };
 </script>
 
