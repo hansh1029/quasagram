@@ -1,15 +1,25 @@
 <template>
   <q-page class="constrain-more q-pa-md">
     <div class="camera-frame q-pa-md">
-      <img class="full-width" src="https://cdn.quasar.dev/img/parallax2.jpg" />
+      <video ref="video" class="full-width" autoplay />
     </div>
     <div class="text-center q-pa-md">
       <q-btn round color="grey-10" size="lg" icon="eva-camera" />
       <div class="row justify-center q-ma-md">
-        <q-input v-model="post.caption" class="col col-sm-6" label="Caption" dense />
+        <q-input
+          v-model="post.caption"
+          class="col col-sm-6"
+          label="Caption"
+          dense
+        />
       </div>
       <div class="row justify-center q-ma-md">
-        <q-input v-model="post.location" class="col col-sm-6" label="Location" dense>
+        <q-input
+          v-model="post.location"
+          class="col col-sm-6"
+          label="Location"
+          dense
+        >
           <template v-slot:append>
             <q-btn round dense flat icon="eva-navigation-2-outline" />
           </template>
@@ -23,7 +33,7 @@
 </template>
 
 <script>
-import { uid } from 'quasar'
+import { uid } from "quasar";
 
 export default {
   name: "PageCamera",
@@ -31,13 +41,30 @@ export default {
     return {
       post: {
         id: uid(),
-        caption: '',
-        location: '',
+        caption: "",
+        location: "",
         photo: null,
-        date: Date.now()
-      }
-    }
-  }
+        date: Date.now(),
+      },
+    };
+  },
+  methods: {
+    initCamera() {
+      navigator.mediaDevices
+        .getUserMedia({
+          video: true,
+        })
+        .then((stream) => {
+          this.$refs.video.srcObject = stream;
+        })
+        .catch((err) => {
+          alert("cannot use camera");
+        });
+    },
+  },
+  mounted() {
+    this.initCamera();
+  },
 };
 </script>
 
