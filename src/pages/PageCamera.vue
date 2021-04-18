@@ -41,12 +41,20 @@
       <div class="row justify-center q-ma-md">
         <q-input
           v-model="post.location"
+          :loading="locationLoading"
           class="col col-sm-6"
           label="Location"
           dense
         >
           <template v-slot:append>
-            <q-btn round dense flat icon="eva-navigation-2-outline" />
+            <q-btn
+              v-if="!locationLoading && locationSupported"
+              @click="getLocation"
+              round
+              dense
+              flat
+              icon="eva-navigation-2-outline"
+            />
           </template>
         </q-input>
       </div>
@@ -76,7 +84,14 @@ export default {
       imageCaptured: false,
       imageUpload: [],
       hasCameraSupport: true,
+      locationLoading: false,
     };
+  },
+  computed: {
+    locationSupported() {
+      if ("geolocation" in navigator) return true;
+      return false;
+    },
   },
   methods: {
     initCamera() {
@@ -89,7 +104,10 @@ export default {
         })
         .catch((err) => {
           this.hasCameraSupport = false;
-          alert("cannot use camera");
+          this.$q.dialog({
+            title: "Alert",
+            message: "Cannot use a camera.",
+          });
         });
     },
     captureImage() {
@@ -150,6 +168,43 @@ export default {
       var blob = new Blob([ab], { type: mimeString });
       return blob;
     },
+    getLocation() {
+      this.locationLoading = true;
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          this.getCityAndCountry(position);
+        },
+        (err) => {
+          this.locationError();
+        },
+        { timeout: 7000 }
+      );
+    },
+    getCityAndCountry(position) {
+      let apiUrl = `https://geocode.xyz/${position.coords.latitude},${position.coords.longitude}?json=1`;
+      this.$axios
+        .get(apiUrl)
+        .then((result) => {
+          this.locationSuccess(result);
+        })
+        .catch((err) => {
+          this.locationError();
+        });
+    },
+    locationSuccess(result) {
+      this.post.location = result.data.city;
+      if (result.data.country) {
+        this.post.location += `, ${result.data.country}`;
+      }
+      this.locationLoading = false;
+    },
+    locationError() {
+      this.$q.dialog({
+        title: "Error",
+        message: "Could not find your location.",
+      });
+      this.locationLoading = false;
+    },
   },
   mounted() {
     this.initCamera();
@@ -158,7 +213,7 @@ export default {
     if (this.hasCameraSupport) {
       this.disableCamera();
     }
-  }
+  },
 };
 </script>
 
