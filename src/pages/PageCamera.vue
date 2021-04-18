@@ -34,6 +34,8 @@
 
 <script>
 import { uid } from "quasar";
+//old version browser can use getUserMedia with md-gum-polyfill
+require("md-gum-polyfill");
 
 export default {
   name: "PageCamera",
