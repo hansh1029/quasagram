@@ -2,23 +2,30 @@
   dependencies
 */
 
-const express = require('express')
+const express = require("express");
 
 /*
   config - express
 */
 
-const app = express()
+const app = express();
 
 /*
   endpoint - posts
 */
-const port = 3000;
 
-app.get("/", (request, response) => {
-    response.send("Hello World!");
+app.get("/posts", (request, response) => {
+  let posts = [
+    {
+      caption: "Golden Gate Bridge",
+      location: "San Francisco"
+    },
+    {
+      caption: "London Eye",
+      location: "London"
+    }
+  ];
+  response.send(posts);
 });
 
-app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
-});
+app.listen(3000);
