@@ -33,3 +33,4 @@ yarn-error.log*
 *.sln
 
 backend/node_modules
+backend/serviceAccountKey.json
