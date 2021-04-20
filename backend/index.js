@@ -46,10 +46,10 @@ app.get("/posts", (request, response) => {
   endpoint - createPost
 */
 
-app.get("/createPost", (request, response) => {
+app.post("/createPost", (request, response) => {
   response.set("Access-Control-Allow-Origin", "*");
 
-  response.send("createPost")
+  response.send(request.headers);
 });
 
 app.listen(process.env.PORT || 3000);
