@@ -214,6 +214,8 @@ export default {
       this.locationLoading = false;
     },
     addPost() {
+      this.$q.loading.show();
+
       let formData = new FormData();
       formData.append("id", this.post.id);
       formData.append("caption", this.post.caption);
@@ -224,10 +226,26 @@ export default {
       this.$axios
         .post(`${process.env.API}/createPost`, formData)
         .then((response) => {
-          console.log("response", response);
+          // console.log("response", response);
+          this.$router.push("/");
+          this.$q.notify({
+            message: "Post created!",
+            actions: [
+              {
+                label: "Dismiss",
+                color: "white",
+              },
+            ],
+          });
+          this.$q.loading.hide();
         })
         .catch((err) => {
-          console.log("err", err);
+          //console.log("err", err);
+          this.$q.dialog({
+            title: "Error",
+            message: "Sorry, could not create post.",
+          });
+          this.$q.loading.hide();
         });
     },
   },
