@@ -6,7 +6,8 @@
   "author": "hansh1029",
   "private": true,
   "scripts": {
-    "start": "quasar dev"
+    "start": "quasar dev",
+    "icons": "icongenie generate -i app-icon.png --skip-trim --theme-color 212121"
   },
   "dependencies": {
     "@quasar/extras": "^1.0.0",
@@ -17,6 +18,7 @@
   },
   "devDependencies": {
     "@quasar/app": "^2.0.0",
+    "@quasar/icongenie": "^2.3.3",
     "workbox-webpack-plugin": "^5.1.4"
   },
   "browserslist": [
