@@ -34,3 +34,8 @@ yarn-error.log*
 
 backend/node_modules
 backend/serviceAccountKey.json
+
+# firebase
+.firebase/
+.firebaserc
+firebase.json
