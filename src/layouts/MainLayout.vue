@@ -2,16 +2,40 @@
   <q-layout view="lHh Lpr lFf">
     <q-header class="bg-white text-grey-10" bordered>
       <q-toolbar class="constrain">
-        <q-btn to="/camera" class="large-screen-only q-mr-sm" flat round dense icon="eva-camera-outline" size="18px" />
+        <q-btn
+          to="/camera"
+          class="large-screen-only q-mr-sm"
+          flat
+          round
+          dense
+          icon="eva-camera-outline"
+          size="18px"
+        />
         <q-separator class="large-screen-only" vertical spaced />
         <q-toolbar-title class="text-grand-hotel text-bold">
           Quasagram
         </q-toolbar-title>
-        <q-btn to="/" class="large-screen-only" flat round dense icon="eva-home-outline" size="18px" />
+        <q-btn
+          to="/"
+          class="large-screen-only"
+          flat
+          round
+          dense
+          icon="eva-home-outline"
+          size="18px"
+        />
       </q-toolbar>
     </q-header>
 
     <q-footer class="bg-white small-screen-only" bordered>
+      <q-banner inline-actions dense class="bg-primary text-white">
+        <b>Install Quasagram?</b>
+        <template v-slot:action>
+          <q-btn flat label="Yes" />
+          <q-btn flat label="Later" />
+          <q-btn flat label="Never" />
+        </template>
+      </q-banner>
       <q-tabs
         class="text-grey-10"
         active-color="primary"
