@@ -27,17 +27,29 @@
       </q-toolbar>
     </q-header>
 
-    <q-footer class="bg-white small-screen-only" bordered>
-      <q-banner inline-actions dense class="bg-primary text-white">
-        <b>Install Quasagram?</b>
-        <template v-slot:action>
-          <q-btn flat label="Yes" />
-          <q-btn flat label="Later" />
-          <q-btn flat label="Never" />
-        </template>
-      </q-banner>
+    <q-footer class="bg-white" bordered>
+      <div class="banner-container bg-primary">
+        <div class="constrain">
+          <q-banner inline-actions dense class="bg-primary text-white">
+            <template v-slot:avatar>
+              <q-avatar
+                color="white"
+                text-color="grey-10"
+                icon="eva-camera-outline"
+                font-size="22px"
+              />
+            </template>
+            <b>Install Quasagram?</b>
+            <template v-slot:action>
+              <q-btn dense class="q-px-sm" flat label="Yes" />
+              <q-btn dense class="q-px-sm" flat label="Later" />
+              <q-btn dense class="q-px-sm" flat label="Never" />
+            </template>
+          </q-banner>
+        </div>
+      </div>
       <q-tabs
-        class="text-grey-10"
+        class="text-grey-10 small-screen-only"
         active-color="primary"
         indicator-color="transparent"
       >
