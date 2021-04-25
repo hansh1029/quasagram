@@ -136,8 +136,6 @@ export default {
         }, 3000);
       });
     }
-    console.log("neverShowAppInstallBanner:", neverShowAppInstallBanner);
-    console.log("showAppInstallBanner:", showAppInstallBanner);
   },
 };
 </script>
