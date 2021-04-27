@@ -89,6 +89,7 @@
 
 <script>
 import { date } from "quasar";
+import { openDB } from 'idb';
 
 export default {
   name: "PageHome",
