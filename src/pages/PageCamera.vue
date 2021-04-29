@@ -245,7 +245,7 @@ export default {
         })
         .catch((err) => {
           //console.log("err", err);
-          if (navigator.onLine) {
+          if (!navigator.onLine && this.backgroundSyncSupported) {
             // redirect to the home page
             this.$q.notify("Post created offline");
             this.$router.push("/");
