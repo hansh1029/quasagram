@@ -7,7 +7,7 @@
             v-for="post in posts"
             :key="post.id"
             class="card-post q-mb-md"
-            :class="{ 'bg-red-1' : post.offline }"
+            :class="{ 'bg-red-1': post.offline }"
             flat
             bordered
           >
@@ -107,6 +107,12 @@ export default {
       loadingPosts: false,
     };
   },
+  computed: {
+    serviceWorkerSupported() {
+      if ("serviceWorker" in navigator) return true;
+      return false;
+    },
+  },
   methods: {
     getPosts() {
       this.loadingPosts = true;
@@ -161,14 +167,32 @@ export default {
           });
       });
     },
+    listenForOfflinePostUploaded() {
+      if (this.serviceWorkerSupported) {
+        const channel = new BroadcastChannel("sw-messages");
+        channel.addEventListener("message", (event) => {
+          console.log("Received", event.data);
+          if (event.data.msg == "offline-post-uploaded") {
+            let offlinePostCount = this.posts.filter(
+              (post) => post.offline == true
+            ).length;
+            this.posts[offlinePostCount - 1].offline = false;
+          }
+        });
+      }
+    },
   },
   filters: {
     niceDate(value) {
       return date.formatDate(value, "MMMM D h:mmA");
     },
   },
-  created() {
+  activated() {
+    console.log("activated");
     this.getPosts();
+  },
+  created() {
+    this.listenForOfflinePostUploaded();
   },
 };
 </script>
@@ -176,7 +200,7 @@ export default {
 <style lang="sass">
 .card-post
   .badge-offline
-      border-top-left-radius: 0 !important
+    border-top-left-radius: 0 !important
   .q-img
     min-height: 200px
 </style>
