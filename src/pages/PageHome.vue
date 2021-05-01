@@ -246,11 +246,29 @@ export default {
           console.log("result: ", result);
           this.neverShowNotificationsBanner();
           if (result == "granted") {
-            this.displayGrantedNotification();
-            // this.checkForExistingPushSubscription();
+            // this.displayGrantedNotification();
+            this.checkForExistingPushSubscription();
           }
         });
       }
+    },
+    checkForExistingPushSubscription() {
+      if (this.serviceWorkerSupported && this.pushNotificationsSupported) {
+        let reg;
+        navigator.serviceWorker.ready
+          .then((swreg) => {
+            reg = swreg;
+            return swreg.pushManager.getSubscription();
+          })
+          .then((sub) => {
+            if (!sub) {
+              this.createPushSubscription(reg);
+            }
+          });
+      }
+    },
+    createPushSubscription(reg) {
+      reg.pushManager.subscribe();
     },
     displayGrantedNotification() {
       //notification without using service worker
