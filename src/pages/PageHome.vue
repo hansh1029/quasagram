@@ -5,7 +5,10 @@
       enter-active-class="animated fadeIn"
       leave-active-class="animated fadeOut"
     >
-      <div v-if="showNotificationsBanner && pushNotificationsSupported" class="banner-container bg-primary">
+      <div
+        v-if="showNotificationsBanner && pushNotificationsSupported"
+        class="banner-container bg-primary"
+      >
         <div class="constrain">
           <q-banner class="bg-grey-3 q-mb-md">
             <template v-slot:avatar>
@@ -250,7 +253,25 @@ export default {
       }
     },
     displayGrantedNotification() {
-      new Notification("You're subscribed to notifications!");
+      //notification without using service worker
+      // new Notification("You're subscribed to notifications!");
+      //push notification with using service worker
+      if (this.serviceWorkerSupported && this.pushNotificationsSupported) {
+        // swreg = service worker regitstration object
+        navigator.serviceWorker.ready.then((swreg) => {
+          swreg.showNotification("You're subscribed to notifications!", {
+            body: "Thanks for subscribing!",
+            icon: "icons/icon-128x128.png",
+            image: "icons/icon-128x128.png",
+            badge: "icons/icon-128x128.png",
+            dir: "ltr",
+            lang: "en-US",
+            vibrate: [100, 50, 200],
+            tag: "confirm-notification",
+            renotify: true
+          });
+        });
+      }
     },
     neverShowNotificationsBanner() {
       this.showNotificationsBanner = false;
