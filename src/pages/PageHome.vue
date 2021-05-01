@@ -1,5 +1,47 @@
 <template>
   <q-page class="constrain q-pa-md">
+    <transition
+      appear
+      enter-active-class="animated fadeIn"
+      leave-active-class="animated fadeOut"
+    >
+      <div v-if="showNotificationsBanner" class="banner-container bg-primary">
+        <div class="constrain">
+          <q-banner class="bg-grey-3 q-mb-md">
+            <template v-slot:avatar>
+              <q-icon name="eva-bell-outline" color="primary" />
+            </template>
+            Would you like to enable notifications?
+            <template v-slot:action>
+              <q-btn
+                @click="enableNotifications"
+                dense
+                class="q-px-sm"
+                flat
+                label="Yes"
+                color="primary"
+              />
+              <q-btn
+                @click="showNotificationsBanner = false"
+                dense
+                class="q-px-sm"
+                flat
+                label="Later"
+                color="primary"
+              />
+              <q-btn
+                @click="neverShowNotificationsBanner"
+                dense
+                class="q-px-sm"
+                flat
+                label="Never"
+                color="primary"
+              />
+            </template>
+          </q-banner>
+        </div>
+      </div>
+    </transition>
     <div class="row q-col-gutter-lg">
       <div class="col-12 col-sm-8">
         <template v-if="!loadingPosts && posts.length">
@@ -105,6 +147,7 @@ export default {
     return {
       posts: [],
       loadingPosts: false,
+      showNotificationsBanner: false,
     };
   },
   computed: {
@@ -181,6 +224,31 @@ export default {
         });
       }
     },
+    initNotificationsBanner() {
+      let neverShowNotificationsBanner = this.$q.localStorage.getItem(
+        "neverShowNotificationsBanner"
+      );
+
+      if (!neverShowNotificationsBanner) {
+        this.showNotificationsBanner = true;
+      }
+    },
+    enableNotifications() {
+      if (this.pushNotificationsSupported) {
+        Notification.requestPermission((result) => {
+          console.log("result: ", result);
+          this.neverShowNotificationsBanner();
+          if (result == "granted") {
+            // this.displayGrantedNotification()
+            this.checkForExistingPushSubscription();
+          }
+        });
+      }
+    },
+    neverShowNotificationsBanner() {
+      this.showNotificationsBanner = false;
+      this.$q.localStorage.set("neverShowNotificationsBanner", true);
+    },
   },
   filters: {
     niceDate(value) {
@@ -193,6 +261,7 @@ export default {
   },
   created() {
     this.listenForOfflinePostUploaded();
+    this.initNotificationsBanner();
   },
 };
 </script>
