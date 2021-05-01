@@ -5,7 +5,7 @@
       enter-active-class="animated fadeIn"
       leave-active-class="animated fadeOut"
     >
-      <div v-if="showNotificationsBanner" class="banner-container bg-primary">
+      <div v-if="showNotificationsBanner && pushNotificationsSupported" class="banner-container bg-primary">
         <div class="constrain">
           <q-banner class="bg-grey-3 q-mb-md">
             <template v-slot:avatar>
@@ -155,6 +155,10 @@ export default {
       if ("serviceWorker" in navigator) return true;
       return false;
     },
+    pushNotificationsSupported() {
+      if ("PushManager" in window) return true;
+      return false;
+    },
   },
   methods: {
     getPosts() {
@@ -239,11 +243,14 @@ export default {
           console.log("result: ", result);
           this.neverShowNotificationsBanner();
           if (result == "granted") {
-            // this.displayGrantedNotification()
-            this.checkForExistingPushSubscription();
+            this.displayGrantedNotification();
+            // this.checkForExistingPushSubscription();
           }
         });
       }
+    },
+    displayGrantedNotification() {
+      new Notification("You're subscribed to notifications!");
     },
     neverShowNotificationsBanner() {
       this.showNotificationsBanner = false;
