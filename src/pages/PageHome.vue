@@ -268,7 +268,17 @@ export default {
       }
     },
     createPushSubscription(reg) {
-      reg.pushManager.subscribe();
+      let vapidPublicKey = process.env.PUSH_PUBLIC_KEY;
+      console.log("vapidPublicKey:", vapidPublicKey);
+      let vapidPublicKeyConverted = this.urlBase64ToUint8Array(vapidPublicKey);
+      reg.pushManager
+        .subscribe({
+          applicationServerKey: vapidPublicKeyConverted,
+          userVisibleOnly: true,
+        })
+        .then((newSub) => {
+          console.log("newSub:", newSub);
+        });
     },
     displayGrantedNotification() {
       //notification without using service worker
@@ -306,6 +316,20 @@ export default {
     neverShowNotificationsBanner() {
       this.showNotificationsBanner = false;
       this.$q.localStorage.set("neverShowNotificationsBanner", true);
+    },
+    urlBase64ToUint8Array(base64String) {
+      const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+      const base64 = (base64String + padding)
+        .replace(/-/g, "+")
+        .replace(/_/g, "/");
+
+      const rawData = window.atob(base64);
+      const outputArray = new Uint8Array(rawData.length);
+
+      for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+      }
+      return outputArray;
     },
   },
   filters: {

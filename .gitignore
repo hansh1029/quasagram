@@ -39,3 +39,4 @@ backend/serviceAccountKey.json
 .firebase/
 .firebaserc
 firebase.json
+.env
