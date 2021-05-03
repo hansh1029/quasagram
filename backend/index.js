@@ -10,6 +10,12 @@ let path = require("path"); //work with paths
 let os = require("os"); //access to temp folder
 let fs = require("fs"); //write the file to the temp folder
 let UUID = require("uuid-v4");
+let webpush = require("web-push"); //to send push notifications
+
+/*
+config - dotenv
+*/
+require("dotenv").config({ path: path.join(__dirname, "../.env") });
 
 /*
   config - express
@@ -30,6 +36,18 @@ admin.initializeApp({
 
 const db = admin.firestore();
 let bucket = admin.storage().bucket();
+
+/*
+  config - webpush
+*/
+
+// console.log("public key:",process.env.PUSH_PUBLIC_KEY);
+// console.log("private key:",process.env.PUSH_PRIVATE_KEY);
+webpush.setVapidDetails(
+  "mailto:test@test.com",
+  `${process.env.PUSH_PUBLIC_KEY}`, // public key
+  `${process.env.PUSH_PRIVATE_KEY}` // private key
+);
 
 /*
   endpoint - posts
@@ -126,7 +144,38 @@ app.post("/createPost", (request, response) => {
           imageUrl: `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${uploadedFile.name}?alt=media&token=${uuid}`
         })
         .then(() => {
+          sendPushNotification();
           response.send("Post added: " + fields.id);
+        });
+    }
+
+    function sendPushNotification() {
+      let subscriptions = [];
+      db.collection("subscriptions")
+        .get()
+        .then(snapshot => {
+          snapshot.forEach(doc => {
+            subscriptions.push(doc.data());
+          });
+          return subscriptions;
+        })
+        .then(subscriptions => {
+          subscription.forEach(subscription => {
+            const pushSubscription = {
+              endpoint: subscription.endpoint,
+              keys: {
+                auth: subscription.keys.auth,
+                p256dh: subscription.keys.p256dh
+              }
+            };
+            let pushContent = {
+              title: "New Quasagram Post!",
+              body: "New Post Added! Check it out!",
+              openUrl: "/#/"
+            };
+            let pushContentStringified = JSON.stringify(pushContent);
+            webpush.sendNotification(pushSubscription, pushContentStringified);
+          });
         });
     }
     //console.log('Done parsing form!');
