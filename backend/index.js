@@ -4,12 +4,12 @@
 
 const express = require("express");
 const admin = require("firebase-admin");
-let inspect = require('util').inspect;
-let Busboy = require('busboy');
-let path = require('path'); //work with paths
-let os = require('os'); //access to temp folder
-let fs = require('fs'); //write the file to the temp folder
-let UUID = require('uuid-v4');
+let inspect = require("util").inspect;
+let Busboy = require("busboy");
+let path = require("path"); //work with paths
+let os = require("os"); //access to temp folder
+let fs = require("fs"); //write the file to the temp folder
+let UUID = require("uuid-v4");
 
 /*
   config - express
@@ -39,7 +39,9 @@ app.get("/posts", (request, response) => {
   response.set("Access-Control-Allow-Origin", "*");
 
   let posts = [];
-  db.collection("posts").orderBy('date', 'desc').limit(3)
+  db.collection("posts")
+    .orderBy("date", "desc")
+    .limit(3)
     .get()
     .then(snapshot => {
       snapshot.forEach(doc => {
@@ -59,18 +61,18 @@ app.post("/createPost", (request, response) => {
 
   let uuid = UUID();
 
+  //busboy is for streaming parser
   var busboy = new Busboy({ headers: request.headers });
 
   let fields = {};
   let fileData = {};
 
-  busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
+  busboy.on("file", function(fieldname, file, filename, encoding, mimetype) {
     //console.log('File [' + fieldname + ']: filename: ' + filename + ', encoding: ' + encoding + ', mimetype: ' + mimetype);
     // /tmp/xxxx.png
     let filepath = path.join(os.tmpdir(), filename);
     file.pipe(fs.createWriteStream(filepath));
     fileData = { filepath, mimetype };
-
 
     // file.on('data', function(data) {
     //   console.log('File [' + fieldname + '] got ' + data.length + ' bytes');
@@ -79,18 +81,25 @@ app.post("/createPost", (request, response) => {
     //   console.log('File [' + fieldname + '] Finished');
     // });
   });
-  
-  busboy.on('field', function(fieldname, val, fieldnameTruncated, valTruncated, encoding, mimetype) {
+
+  busboy.on("field", function(
+    fieldname,
+    val,
+    fieldnameTruncated,
+    valTruncated,
+    encoding,
+    mimetype
+  ) {
     //console.log('Field [' + fieldname + ']: value: ' + inspect(val));
     fields[fieldname] = val;
   });
-  
-  busboy.on('finish', function() {
+
+  busboy.on("finish", function() {
     // upload file to the storage
     bucket.upload(
       fileData.filepath,
       {
-        uploadType: 'media',
+        uploadType: "media",
         metadata: {
           metadata: {
             contentType: fileData.mimetype,
@@ -100,22 +109,25 @@ app.post("/createPost", (request, response) => {
       },
       (err, uploadedFile) => {
         if (!err) {
-          createDocument(uploadedFile) //call back function
+          createDocument(uploadedFile); //call back function
         }
       }
-    )
+    );
 
     // upload data to the db
     function createDocument(uploadedFile) {
-      db.collection('posts').doc(fields.id).set({
-        id: fields.id,
-        caption: fields.caption,
-        location: fields.location,
-        date: parseInt(fields.date),
-        imageUrl: `https://firebasestorage.googleapis.com/v0/b/${ bucket.name }/o/${ uploadedFile.name }?alt=media&token=${ uuid }`
-      }).then(() => {
-        response.send('Post added: ' + fields.id)
-      })
+      db.collection("posts")
+        .doc(fields.id)
+        .set({
+          id: fields.id,
+          caption: fields.caption,
+          location: fields.location,
+          date: parseInt(fields.date),
+          imageUrl: `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${uploadedFile.name}?alt=media&token=${uuid}`
+        })
+        .then(() => {
+          response.send("Post added: " + fields.id);
+        });
     }
     //console.log('Done parsing form!');
     //response.writeHead(303, { Connection: 'close', Location: '/' }); redirect to home
@@ -123,6 +135,23 @@ app.post("/createPost", (request, response) => {
   });
   request.pipe(busboy);
   // busboy.end(request).rawBody); //this is for cloud functions
+});
+
+/*
+  endpoint - createSubscription
+*/
+
+app.post("/createSubscription", (request, response) => {
+  response.set("Access-Control-Allow-Origin", "*");
+  // javascript object is in request query
+  db.collection("subscriptions")
+    .add(request.query)
+    .then(docRef => {
+      response.send({
+        message: "Subscription added!",
+        postData: request.query
+      });
+    });
 });
 
 app.listen(process.env.PORT || 3000);

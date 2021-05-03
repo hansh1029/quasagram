@@ -143,6 +143,7 @@
 <script>
 import { date } from "quasar";
 import { openDB } from "idb";
+let qs = require("qs");
 
 export default {
   name: "PageHome",
@@ -268,6 +269,7 @@ export default {
       }
     },
     createPushSubscription(reg) {
+      //PUSH_PUBLIC_KEY is saved in dotenv file and created by web-push generator
       let vapidPublicKey = process.env.PUSH_PUBLIC_KEY;
       console.log("vapidPublicKey:", vapidPublicKey);
       let vapidPublicKeyConverted = this.urlBase64ToUint8Array(vapidPublicKey);
@@ -277,7 +279,19 @@ export default {
           userVisibleOnly: true,
         })
         .then((newSub) => {
-          console.log("newSub:", newSub);
+          //convert push subscription object to javascript object
+          let newSubData = newSub.toJSON(),
+            newSubDataQS = qs.stringify(newSubData);
+          return this.$axios.post(
+            `${process.env.API}/createSubscription?${newSubDataQS}`
+          );
+        })
+        .then((response) => {
+          console.log("response: ", response);
+          this.displayGrantedNotification();
+        })
+        .catch((err) => {
+          console.log("err: ", err);
         });
     },
     displayGrantedNotification() {
