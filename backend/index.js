@@ -160,7 +160,7 @@ app.post("/createPost", (request, response) => {
           return subscriptions;
         })
         .then(subscriptions => {
-          subscription.forEach(subscription => {
+          subscriptions.forEach(subscription => {
             const pushSubscription = {
               endpoint: subscription.endpoint,
               keys: {
