@@ -242,6 +242,11 @@ export default {
             ],
           });
           this.$q.loading.hide();
+          if (this.$q.platform.is.safari) {
+            setTimeout(() => {
+              window.location.href = "/";
+            }, 1000);
+          }
         })
         .catch((err) => {
           //console.log("err", err);
