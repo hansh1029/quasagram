@@ -220,48 +220,59 @@ export default {
     addPost() {
       this.$q.loading.show();
 
-      let formData = new FormData();
-      formData.append("id", this.post.id);
-      formData.append("caption", this.post.caption);
-      formData.append("location", this.post.location);
-      formData.append("date", this.post.date);
-      formData.append("file", this.post.photo, this.post.id + ".png");
+      let postCreated = this.$q.localStorage.getItem("postCreated");
 
-      this.$axios
-        .post(`${process.env.API}/createPost`, formData)
-        .then((response) => {
-          // console.log("response", response);
-          this.$router.push("/");
-          this.$q.notify({
-            message: "Post created!",
-            actions: [
-              {
-                label: "Dismiss",
-                color: "white",
-              },
-            ],
-          });
-          this.$q.loading.hide();
-          if (this.$q.platform.is.safari) {
-            setTimeout(() => {
-              window.location.href = "/";
-            }, 1000);
-          }
-        })
-        .catch((err) => {
-          //console.log("err", err);
-          if (!navigator.onLine && this.backgroundSyncSupported) {
-            // redirect to the home page
-            this.$q.notify("Post created offline");
+      if (this.$q.platform.is.android && !postCreated && !navigator.onLine) {
+        this.addPostError();
+        this.$q.loading.hide();
+      } 
+      else {
+        let formData = new FormData();
+        formData.append("id", this.post.id);
+        formData.append("caption", this.post.caption);
+        formData.append("location", this.post.location);
+        formData.append("date", this.post.date);
+        formData.append("file", this.post.photo, this.post.id + ".png");
+
+        this.$axios
+          .post(`${process.env.API}/createPost`, formData)
+          .then((response) => {
+            // console.log("response", response);
             this.$router.push("/");
-          } else {
-            this.$q.dialog({
-              title: "Error",
-              message: "Sorry, could not create post.",
+            this.$q.notify({
+              message: "Post created!",
+              actions: [
+                {
+                  label: "Dismiss",
+                  color: "white",
+                },
+              ],
             });
-          }
-          this.$q.loading.hide();
-        });
+            this.$q.loading.hide();
+            if (this.$q.platform.is.safari) {
+              setTimeout(() => {
+                window.location.href = "/";
+              }, 1000);
+            }
+          })
+          .catch((err) => {
+            //console.log("err", err);
+            if (!navigator.onLine && this.backgroundSyncSupported) {
+              // redirect to the home page
+              this.$q.notify("Post created offline");
+              this.$router.push("/");
+            } else {
+              this.addPostError();
+            }
+            this.$q.loading.hide();
+          });
+      }
+    },
+    addPostError() {
+      this.$q.dialog({
+        title: "Error",
+        message: "Sorry, could not create post!",
+      });
     },
   },
   mounted() {
