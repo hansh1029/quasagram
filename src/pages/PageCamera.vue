@@ -1,7 +1,13 @@
 <template>
   <q-page class="constrain-more q-pa-md">
     <div class="camera-frame q-pa-md">
-      <video v-show="!imageCaptured" ref="video" class="full-width" autoplay />
+      <video 
+        v-show="!imageCaptured"
+        ref="video"
+        class="full-width"
+        autoplay
+        playsinline
+      />
       <canvas
         v-show="imageCaptured"
         ref="canvas"
@@ -63,6 +69,7 @@
         <q-btn
           @click="addPost()"
           :disable="!post.caption || !post.photo"
+          class="q-mb-lg"
           unelevated
           rounded
           color="primary"
